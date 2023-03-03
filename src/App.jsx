@@ -25,7 +25,7 @@ function CsvReader() {
     if (tableData && Object.keys(tableData).length > 0) {
       setGlobalDataStore(tableData.tableRows);
       setFilterData(() => [...tableData.tableRows]);
-      setTableHeaders(() => tableData.tableHeaders);
+      setTableHeaders(() => [...tableData.tableHeaders]);
       setHeaderItems(() => [...tableData.headersItems]);
       setPending(false);
     }
@@ -54,7 +54,7 @@ function CsvReader() {
     globalDataStore;
 
     return filterData;
-  }, [filter]);
+  }, [filter.current]);
 
   const handleAddition = (mod, filterKeywords) => {
     setFilterData(() => {
@@ -74,15 +74,17 @@ function CsvReader() {
       }
 
       if (filterQueue.current?.length == 1) {
-        return globalDataStore.filter((item, index) => {
-          for (const key in filter.current) {
-            if (filter.current[key].length == 1) {
-              return filter.current[key]?.includes(item[key]);
+        return [
+          globalDataStore.find((item, index) => {
+            for (const key in filter.current) {
+              if (filter.current[key].length == 1) {
+                return filter.current[key]?.includes(item[key]);
+              }
             }
-          }
-        });
+          }),
+        ];
       }
-
+      // TODO:: Write Remove logic
       return globalDataStore.filter((item, index) => {
         for (const key in filter.current) {
           if (filter.current[key].includes(item[key])) {
