@@ -68,7 +68,15 @@ function CsvReader() {
     setTimeout(() => {
       setPending(false);
     }, 500);
+    console.log(getFilteredData);
   }, [filterData]);
+
+  const getFilteredData = useMemo(() => {
+    console.log(filter);
+    globalDataStore;
+
+    return filterData;
+  }, [filter]);
 
   const handleAddition = (mod, filterKeywords) => {
     setFilterData(() => {
@@ -173,47 +181,12 @@ function CsvReader() {
                     >
                       {item}
                     </label>
-
-                    <Multiselect
-                      className="w-[300px] h-9"
-                      style={{
-                        searchWrapper: {
-                          width: "400px",
-                        },
-                        multiselectContainer: {
-                          margin: "5px auto",
-                        },
-                        inputField: {},
-                        optionContainer: {
-                          // To change css for option container
-                          border: "2px solid #ddd",
-                          color: "#fff",
-                        },
-                        chips: { background: "red" },
-                        searchBox: {
-                          border: "2px solid #ddd",
-                          display: "block",
-                          borderBottom: "2px solid #ddd",
-                          padding: "5px",
-                        },
-                        option: {
-                          color: "#000",
-                        },
-                      }}
-                      showArrow
-                      options={uniq(
-                        filterData.map((value, index) => value[item])
-                      ).sort((a, b) => a - b)} // Options to display in the dropdown
-                      onSelect={debounce(
-                        (e) => handleSelectedValues(item, e),
-                        1000
-                      )} // Function will trigger on select event
-                      onRemove={(e) => {
-                        handleUnSelectedValues(item, e);
-                      }} // Function will trigger on remove event
-                      isObject={false}
-                      showCheckbox={true}
-                    />
+                    <Selector
+                      filterData={filterData}
+                      handleSelectedValues={handleSelectedValues}
+                      handleUnSelectedValues={handleUnSelectedValues}
+                      item={item}
+                    ></Selector>
                   </div>
                 </div>
               );
@@ -248,6 +221,57 @@ function CsvReader() {
     </>
   );
 }
+
+const Selector = ({
+  filterData,
+  handleSelectedValues,
+  handleUnSelectedValues,
+  item,
+}) => {
+  const selector = useMemo(
+    () => (
+      <Multiselect
+        className="w-[300px] h-9"
+        style={{
+          searchWrapper: {
+            width: "400px",
+          },
+          multiselectContainer: {
+            margin: "5px auto",
+          },
+          inputField: {},
+          optionContainer: {
+            // To change css for option container
+            border: "2px solid #ddd",
+            color: "#fff",
+          },
+          chips: { background: "red" },
+          searchBox: {
+            border: "2px solid #ddd",
+            display: "block",
+            borderBottom: "2px solid #ddd",
+            padding: "5px",
+          },
+          option: {
+            color: "#000",
+          },
+        }}
+        showArrow
+        options={uniq(filterData.map((value, index) => value[item])).sort(
+          (a, b) => a - b
+        )} // Options to display in the dropdown
+        onSelect={debounce((e) => handleSelectedValues(item, e), 1000)} // Function will trigger on select event
+        onRemove={(e) => {
+          handleUnSelectedValues(item, e);
+        }} // Function will trigger on remove event
+        isObject={false}
+        showCheckbox={true}
+      />
+    ),
+    [filterData]
+  );
+  return selector;
+};
 
 const CreateTable = ({ tableHeaders, filterData, pending }) => {
   const dataTable = useMemo(
