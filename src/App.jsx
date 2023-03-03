@@ -11,11 +11,13 @@ const dataSource = "./public/dataset_small.csv";
 
 function CsvReader() {
   const filterQueue = useRef([]);
+  const filter = useRef({});
   const [csvFile, setCsvFile] = useState();
   const [globalDataStore, setGlobalDataStore] = useState([]);
   const [filterData, setFilterData] = useState([]);
   const [tableHeaders, setTableHeaders] = useState([]);
   const [headerItems, setHeaderItems] = useState();
+  const [pending, setPending] = useState(false);
 
   const processCSV = (str = dataSource, delim = ",") => {
     let headersItems = str.slice(0, str.indexOf("\n")).split(delim);
@@ -62,15 +64,14 @@ function CsvReader() {
     reader.readAsText(file);
   };
 
-  const [filterColumnKey, setFilterColumnKey] = useState();
-  const [selectedValue, setSelectedValue] = useState({});
-  const filter = useRef({});
+  useEffect(() => {
+    setTimeout(() => {
+      setPending(false);
+    }, 500);
+  }, [filterData]);
+
   const handleAddition = (mod, filterKeywords) => {
     setFilterData(() => {
-      if (filterQueue.current?.length == 0) {
-        return globalDataStore;
-      }
-
       return filterData.filter((item) => {
         if (filterKeywords.includes(item[mod])) {
           return item;
@@ -78,12 +79,6 @@ function CsvReader() {
       });
     });
   };
-
-  useEffect(() => {
-    setTimeout(() => {
-      setPending(false);
-    }, 500);
-  }, [filterData]);
 
   const handleRemoval = (mod) => {
     setFilterData(() => {
@@ -100,6 +95,7 @@ function CsvReader() {
           }
         });
       }
+
       return globalDataStore.filter((item, index) => {
         for (const key in filter.current) {
           if (filter.current[key].includes(item[key])) {
@@ -113,30 +109,16 @@ function CsvReader() {
   const handleSelectedValues = (mod, filterKeywords) => {
     setPending(true);
     filter.current[mod] = filterKeywords;
-
-    setSelectedValue((selectedValue) => ({
-      ...selectedValue,
-      ...filter.current,
-    }));
-
     filterQueue.current.push(filter);
     handleAddition(mod, filterKeywords);
-    setFilterColumnKey(filter.current);
   };
 
   const handleUnSelectedValues = (mod, filterKeywords) => {
     setPending(true);
-    filter.current[mod] = filterKeywords;
-    setSelectedValue((selectedValue) => ({
-      ...selectedValue,
-      ...filter.current,
-    }));
-
     filterQueue.current.pop();
+    filter.current[mod] = filterKeywords;
     handleRemoval(mod, filter);
   };
-
-  const [pending, setPending] = useState(false);
 
   return (
     <>
@@ -200,7 +182,6 @@ function CsvReader() {
                         multiselectContainer: {
                           margin: "5px auto",
                         },
-
                         inputField: {},
                         optionContainer: {
                           // To change css for option container
