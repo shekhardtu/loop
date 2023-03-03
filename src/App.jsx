@@ -98,7 +98,8 @@ function CsvReader() {
   const handleSelectedValues = (mod, filterKeywords) => {
     setPending(true);
     filter.current[mod] = filterKeywords;
-    filterQueue.current.push(filter);
+    console.log(filterKeywords);
+    filterQueue.current.push(...filterKeywords);
     handleAddition(mod, filterKeywords);
   };
 
