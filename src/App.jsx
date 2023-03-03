@@ -250,23 +250,30 @@ function CsvReader() {
 }
 
 const CreateTable = ({ tableHeaders, filterData, pending }) => {
-  return (
-    <>
-      <DataTable
-        columns={tableHeaders}
-        data={filterData}
-        fixedHeader
-        fixedHeaderScrollHeight="1000px"
-        pagination
-        progressPending={pending}
-        paginationPerPage={100}
-        progressComponent={
-          <div className=" font-bold text-lg mx-auto mt-32">Processing...</div>
-        }
-        paginationRowsPerPageOptions={[100, 200, 300, 400]}
-      />
-    </>
+  const dataTable = useMemo(
+    () => (
+      <>
+        <DataTable
+          columns={tableHeaders}
+          data={filterData}
+          fixedHeader
+          fixedHeaderScrollHeight="1000px"
+          pagination
+          progressPending={pending}
+          paginationPerPage={100}
+          progressComponent={
+            <div className=" font-bold text-lg mx-auto mt-32">
+              Processing...
+            </div>
+          }
+          paginationRowsPerPageOptions={[100, 200, 300, 400]}
+        />
+      </>
+    ),
+    [filterData, pending, tableHeaders]
   );
+
+  return dataTable;
 };
 
 function App() {
