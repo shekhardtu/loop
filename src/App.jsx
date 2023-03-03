@@ -83,6 +83,7 @@ function CsvReader() {
   const handleRemoval = (mod) => {
     setFilterData(() => {
       if (filterQueue.current?.length == 0) {
+        setPending(false);
         return globalDataStore;
       }
 
