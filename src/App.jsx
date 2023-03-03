@@ -7,7 +7,7 @@ import DataTable from "react-data-table-component";
 import "./App.css";
 // Start Time: 12:30pm;
 
-const dataSource = "./public/dataset_small.csv";
+import { AppMethods } from "./app.methods";
 
 function CsvReader() {
   const filterQueue = useRef([]);
@@ -16,42 +16,20 @@ function CsvReader() {
   const [globalDataStore, setGlobalDataStore] = useState([]);
   const [filterData, setFilterData] = useState([]);
   const [tableHeaders, setTableHeaders] = useState([]);
+  const [tableData, setTableData] = useState();
   const [headerItems, setHeaderItems] = useState();
   const [pending, setPending] = useState(false);
+  const { processCSV } = AppMethods(setPending);
 
-  const processCSV = (str = dataSource, delim = ",") => {
-    let headersItems = str.slice(0, str.indexOf("\n")).split(delim);
-    setHeaderItems(headersItems);
-
-    let headers = str
-      .slice(0, str.indexOf("\n"))
-      .split(delim)
-      .map((item, index) => {
-        return {
-          name: item.toUpperCase(),
-          selector: (row) => row[item],
-        };
-      });
-    setTableHeaders(headers);
-
-    const rows = str
-      .slice(str.indexOf("\n") + 1)
-      .split("\n")
-      .filter((item) => item);
-
-    const newArray = rows.map((row) => {
-      const values = row.split(delim);
-      const eachObject = headersItems.reduce((obj = {}, header, i) => {
-        obj[header] = values[i];
-        return obj;
-      }, {});
-      return eachObject;
-    });
-
-    setGlobalDataStore(newArray);
-    setFilterData(() => [...newArray]);
-    setPending(false);
-  };
+  useEffect(() => {
+    if (tableData && Object.keys(tableData).length > 0) {
+      setGlobalDataStore(tableData.tableRows);
+      setFilterData(() => [...tableData.tableRows]);
+      setTableHeaders(() => tableData.tableHeaders);
+      setHeaderItems(() => [...tableData.headersItems]);
+      setPending(false);
+    }
+  }, [tableData]);
 
   const submit = () => {
     setPending(true);
@@ -59,7 +37,8 @@ function CsvReader() {
     const reader = new FileReader();
     reader.onload = function (e) {
       const text = e.target.result;
-      processCSV(text);
+      const tableData = processCSV(text);
+      setTableData(tableData);
     };
     reader.readAsText(file);
   };
@@ -68,7 +47,6 @@ function CsvReader() {
     setTimeout(() => {
       setPending(false);
     }, 500);
-    console.log(getFilteredData);
   }, [filterData]);
 
   const getFilteredData = useMemo(() => {
