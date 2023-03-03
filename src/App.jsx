@@ -4,8 +4,6 @@ import debounce from "lodash/debounce";
 import Multiselect from "multiselect-react-dropdown";
 import DataTable from "react-data-table-component";
 
-import ViewportList from "react-viewport-list";
-
 import "./App.css";
 // Start Time: 12:30pm;
 
